@@ -38,6 +38,9 @@ public class SpellingBee {
     public SpellingBee(String letters) {
         this.letters = letters;
         words = new ArrayList<String>();
+        words.add("loading");
+        words.add("bfdddfgd");
+        words.add("hello");
     }
 
     // TODO: generate all possible substrings and permutations of the letters.
@@ -45,12 +48,36 @@ public class SpellingBee {
     //  that will find the substrings recursively.
     public void generate() {
         // YOUR CODE HERE — Call your recursive method!
+        create("", letters);
+    }
+
+    public void create(String group1, String group2) {
+        if(group2.equals("")) {
+            words.add(group1);
+            return;
+        }
+        for(int i=0; i<group2.length(); i++) {
+            words.add(group1);
+            words.add(group2);
+            create(group1 + group2.substring(i, i+1), group2.substring(0,i) + group2.substring(i+1));
+        }
+//            create(group1 + group2.substring(0, 1), group2.substring(1));
     }
 
     // TODO: Apply mergesort to sort all words. Do this by calling ANOTHER method
     //  that will find the substrings recursively.
     public void sort() {
         // YOUR CODE HERE
+        mergeSort(0, words.size()-1);
+    }
+
+    public void mergeSort(int left, int right) {
+        if(right <= left) {
+            return;
+        }
+
+//        mergeSort(0, right/2);
+//        mergeSort(right/2+1, right);
     }
 
     // Removes duplicates from the sorted list.
@@ -69,6 +96,31 @@ public class SpellingBee {
     //  If it is not in the dictionary, remove it from words.
     public void checkWords() {
         // YOUR CODE HERE
+        //How should I compare the start of words?
+        int start = 0;
+        int end = DICTIONARY_SIZE -1;
+        int mid  = 0;
+        boolean found = false;
+        for(int i=0; i<words.size(); i++) {
+            found = false;
+            while (start <= end) {
+                mid = start + (end-start)/2;
+                if(DICTIONARY[mid].equals(words.get(i))) {
+                    found = true;
+                    break;
+                }
+                else if (DICTIONARY[mid].compareTo(words.get(i)) > 0) {
+                    end = mid-1;
+                }
+                else {
+                    start = mid+1;
+                }
+            }
+            if(!found) {
+                words.remove(i);
+            }
+        }
+        System.out.println(words);
     }
 
     // Prints all valid words to wordList.txt
@@ -128,6 +180,7 @@ public class SpellingBee {
         sb.generate();
         sb.sort();
         sb.removeDuplicates();
+        System.out.println(sb.getWords());
         sb.checkWords();
         try {
             sb.printWords();
