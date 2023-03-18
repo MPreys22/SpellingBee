@@ -219,11 +219,8 @@ public class SpellingBee {
         SpellingBee sb = new SpellingBee(letters);
         sb.generate();
         sb.sort();
-        System.out.println(sb.words);
         sb.removeDuplicates();
-        System.out.println(sb.words);
         sb.checkWords();
-        System.out.println(sb.words);
         try {
             sb.printWords();
         } catch (IOException e) {
