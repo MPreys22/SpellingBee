@@ -30,6 +30,9 @@ import java.util.Scanner;
  *
  * DO NOT MODIFY MAIN OR ANY OF THE METHOD HEADERS.
  */
+
+// Michael Preys
+// 17 March 2023
 public class SpellingBee {
 
     private String letters;
