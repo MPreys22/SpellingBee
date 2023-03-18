@@ -1,5 +1,7 @@
 import java.io.*;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -38,9 +40,6 @@ public class SpellingBee {
     public SpellingBee(String letters) {
         this.letters = letters;
         words = new ArrayList<String>();
-        words.add("loading");
-        words.add("bfdddfgd");
-        words.add("hello");
     }
 
     // TODO: generate all possible substrings and permutations of the letters.
@@ -52,32 +51,69 @@ public class SpellingBee {
     }
 
     public void create(String group1, String group2) {
+        // Base case/goes down to bottom of tree
         if(group2.equals("")) {
             words.add(group1);
             return;
         }
+        // Horizontal/all letters
         for(int i=0; i<group2.length(); i++) {
+            // Vertical of tree
             words.add(group1);
             words.add(group2);
             create(group1 + group2.substring(i, i+1), group2.substring(0,i) + group2.substring(i+1));
         }
-//            create(group1 + group2.substring(0, 1), group2.substring(1));
     }
 
     // TODO: Apply mergesort to sort all words. Do this by calling ANOTHER method
     //  that will find the substrings recursively.
     public void sort() {
-        // YOUR CODE HERE
-        mergeSort(0, words.size()-1);
+        // Point to returned sorted array
+        words = mergeSort(words);
     }
 
-    public void mergeSort(int left, int right) {
-        if(right <= left) {
-            return;
+    public ArrayList<String> mergeSort(ArrayList<String> arr) {
+        // Once there is only one element in array
+        if(arr.size() == 1) {
+            return arr;
         }
+        // Each half of array
+        ArrayList<String> arr1 = new ArrayList<>();
+        ArrayList<String> arr2 = new ArrayList<>();
+        for(int i=0; i < arr.size()/2; i++) {
+            arr1.add(arr.get(i));
+        }
+        for(int i=arr.size()/2; i < arr.size(); i++) {
+            arr2.add(arr.get(i));
+        }
+        // Give new sorted arrays to merge together
+        arr1 = mergeSort(arr1);
+        arr2 = mergeSort(arr2);
+        return merge(arr1, arr2);
+    }
 
-//        mergeSort(0, right/2);
-//        mergeSort(right/2+1, right);
+    public ArrayList<String> merge(List<String> arr1, List<String> arr2) {
+        // Creates new empty array to add to in sorted order
+        ArrayList<String> mergeList = new ArrayList<>();
+        // Makes sure both arrays still have elements
+        while (arr1.size() != 0 && arr2.size() != 0) {
+            // Checks which strings are greater
+            if (arr1.get(0).compareTo(arr2.get(0)) < 0) {
+                mergeList.add(arr1.remove(0));
+            }
+            else {
+                mergeList.add(arr2.remove(0));
+            }
+        }
+        // If one array is empty, add what is left of the other non-empty array
+        if (arr1.isEmpty() && !(arr2.isEmpty())) {
+            mergeList.addAll(mergeList.size(), arr2);
+        }
+        else if (!(arr1.isEmpty()) && arr2.isEmpty()) {
+            mergeList.addAll(mergeList.size() , arr1);
+        }
+        else{}
+        return mergeList;
     }
 
     // Removes duplicates from the sorted list.
@@ -96,31 +132,35 @@ public class SpellingBee {
     //  If it is not in the dictionary, remove it from words.
     public void checkWords() {
         // YOUR CODE HERE
-        //How should I compare the start of words?
-        int start = 0;
-        int end = DICTIONARY_SIZE -1;
-        int mid  = 0;
-        boolean found = false;
+        boolean found;
+        // Each individual word in word array
         for(int i=0; i<words.size(); i++) {
-            found = false;
-            while (start <= end) {
-                mid = start + (end-start)/2;
-                if(DICTIONARY[mid].equals(words.get(i))) {
-                    found = true;
-                    break;
-                }
-                else if (DICTIONARY[mid].compareTo(words.get(i)) > 0) {
-                    end = mid-1;
-                }
-                else {
-                    start = mid+1;
-                }
-            }
+            found = binarySearch(words.get(i), 0, DICTIONARY_SIZE);
             if(!found) {
-                words.remove(i);
+               words.remove(i);
+               // Since size is not a final variable, as I remove one I need to bring the index back one
+               i--;
             }
         }
-        System.out.println(words);
+    }
+
+    public boolean binarySearch(String str, int start, int end) {
+        if(end < start) {
+            return false;
+        }
+
+        int mid = start + (end-start)/2;
+        // Checks target vs middle of sorted array and either returns true if equal or halves to one side based on if
+        // target is greater or less than mid in Dictionary array
+        if(DICTIONARY[mid].equals(str)) {
+            return true;
+        }
+        else if (DICTIONARY[mid].compareTo(str) > 0) {
+            return binarySearch(str, start, mid-1);
+        }
+        else {
+            return binarySearch(str, mid+1, end);
+        }
     }
 
     // Prints all valid words to wordList.txt
@@ -179,9 +219,11 @@ public class SpellingBee {
         SpellingBee sb = new SpellingBee(letters);
         sb.generate();
         sb.sort();
+        System.out.println(sb.words);
         sb.removeDuplicates();
-        System.out.println(sb.getWords());
+        System.out.println(sb.words);
         sb.checkWords();
+        System.out.println(sb.words);
         try {
             sb.printWords();
         } catch (IOException e) {
